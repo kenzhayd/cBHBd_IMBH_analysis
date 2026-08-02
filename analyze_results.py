@@ -22,7 +22,7 @@ from pathlib import Path
 
 # Configuration
 
-OUTPUT_DIR = Path("local_test_output")
+OUTPUT_DIR = Path("test_output")
 SUMMARY_DIR = OUTPUT_DIR / "summary"
 SUMMARY_DIR.mkdir(parents=True, exist_ok=True)
 
