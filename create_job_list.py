@@ -33,7 +33,7 @@ SEEDS = range(1, 501)
 RANTALA_IMBH_SEED = [True]  # Toggle Rantala 2026 IMBH seed formation
 EXTENDED_IMF = [True]       # Toggle Extended IMF
 GALPY_POTENTIAL = [True]    # Toggle Galpy NFW Halo Potential
-M_VIR = [1e12]              # Virial mass used if galpy potential is enabled. [1e12 Msun]
+M_VIR = [1e9]              # Virial mass used if galpy potential is enabled. [1e12 Msun]
 C_HALO = [17]               # NFW Concentration parameter used if galpy potential is enabled.
 
 # Generate of runs grid
