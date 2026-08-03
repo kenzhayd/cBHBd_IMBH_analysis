@@ -1,7 +1,34 @@
 [
     {
         "configuration": {
-            "M0": 1000000.0,
+            "M0": 10000000.0,
+            "rhoh0": 4168693.834703355,
+            "FeH": -1.7,
+            "rg": 26.25,
+            "tend": 3000.0,
+            "rantala_imbh_seed": true,
+            "extended_imf": true,
+            "galpy_potential": true,
+            "M_vir": 1000000000.0,
+            "c_halo": 17.0
+        },
+        "total_runs": 496,
+        "final_IMBH_mass_mean": 1183.8627620226,
+        "final_IMBH_mass_std": 219.45523881994262,
+        "final_IMBH_mass_1sigma": [
+            964.4075232026573,
+            1403.3180008425427
+        ],
+        "final_IMBH_mass_3sigma": [
+            525.4970455627722,
+            1842.2284784824278
+        ],
+        "mean_initial_v_esc": 434.9646130159555,
+        "mean_final_v_esc": 118.45737003030278
+    },
+    {
+        "configuration": {
+            "M0": 10000000.0,
             "rhoh0": 416869.3834703355,
             "FeH": -1.7,
             "rg": 26.25,
@@ -9,21 +36,21 @@
             "rantala_imbh_seed": true,
             "extended_imf": true,
             "galpy_potential": true,
-            "M_vir": 1000000000000.0,
+            "M_vir": 1000000000.0,
             "c_halo": 17.0
         },
-        "total_runs": 20,
-        "final_IMBH_mass_mean": 1806.1932177451886,
-        "final_IMBH_mass_std": 907.3001569399901,
+        "total_runs": 4,
+        "final_IMBH_mass_mean": 1117.1292944976485,
+        "final_IMBH_mass_std": 135.39458924030302,
         "final_IMBH_mass_1sigma": [
-            898.8930608051985,
-            2713.4933746851784
+            981.7347052573455,
+            1252.5238837379516
         ],
         "final_IMBH_mass_3sigma": [
-            -915.7072530747814,
-            4528.093688565159
+            710.9455267767395,
+            1523.3130622185577
         ],
-        "mean_initial_v_esc": 512.3958742045872,
-        "mean_final_v_esc": 494.56070049099026
+        "mean_initial_v_esc": 298.5346754690649,
+        "mean_final_v_esc": 106.63966627524958
     }
 ]
