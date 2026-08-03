@@ -5,7 +5,7 @@
 #SBATCH --cpus-per-task=1       
 #SBATCH --mem=3G                
 #SBATCH --time=02:00:00
-#SBATCH --array=1-21%192               # Change to match jobs.csv line count. Allows no more than 192 of the 500 jobs to run at once
+#SBATCH --array=1-500%192               # Change to match jobs.csv line count. --array=1-500%192  allows no more than 192 of the 500 jobs to run at once
 #SBATCH --output=logs/slurm-%A_%a.out   # Job ID and Array Task ID 
 #SBATCH --error=logs/slurm-%A_%a.err
 #SBATCH --mail-type=ALL
@@ -25,4 +25,4 @@ source /home/kenzhayd/projects/def-vhenault/kenzhayd/cbhbd_env/bin/activate
 cd /home/kenzhayd/projects/def-vhenault/kenzhayd/cBHBd_IMBH_analysis
 
 # Run the single model script, passing the SLURM Array Task ID
-python single_model.py --task_id $SLURM_ARRAY_TASK_ID --jobs_file test.csv --output_dir output
+python single_model.py --task_id $SLURM_ARRAY_TASK_ID --jobs_file cbhbd_job1.csv --output_dir output

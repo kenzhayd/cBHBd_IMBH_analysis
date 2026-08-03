@@ -18,9 +18,9 @@ import csv
 # =============================================================================
 # CONFIGURATION
 # =============================================================================
-job_list_name = "test.csv"
+job_list_name = "cbhbd_job1.csv"
 
-M0 = [1e6]
+M0 = [1e7]
 LOG_RHO = [5.62]  
 RHO = [10 ** x for x in LOG_RHO]
 Z_FEH = [-1.7]
@@ -28,7 +28,7 @@ RG = [26.25]
 TEND = [3000]
 
 # Set this to range(1, 501) to run 500 seeds per configuration
-SEEDS = range(1, 21) 
+SEEDS = range(1, 501) 
 
 RANTALA_IMBH_SEED = [True]  # Toggle Rantala 2026 IMBH seed formation
 EXTENDED_IMF = [True]       # Toggle Extended IMF
