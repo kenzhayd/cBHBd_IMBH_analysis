@@ -18,10 +18,10 @@ import csv
 # =============================================================================
 # CONFIGURATION
 # =============================================================================
-job_list_name = "cbhbd_job1.csv"
+job_list_name = "cbhbd_job2.csv"
 
 M0 = [1e7]
-LOG_RHO = [5.62]  
+LOG_RHO = [6.62]  # 5.62 in paper
 RHO = [10 ** x for x in LOG_RHO]
 Z_FEH = [-1.7]
 RG = [26.25]
