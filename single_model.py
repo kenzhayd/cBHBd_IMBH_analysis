@@ -23,6 +23,16 @@ import os
 import numpy as np
 from cbhbd import cbhbd
 
+def get_config_name(config_dict):
+    """Creates filename string from config parameters."""
+    seed_str = "Rantala" if config_dict['rantala_imbh_seed'] else "Standard CBHBD"
+    imf_str = "ExtIMF" if config_dict['extended_imf'] else "Standard CBHBD"
+    pot_str = "Galpy" if config_dict['galpy_potential'] else "Standard CBHBD"
+
+    return (f"M0_{config_dict['M0']:.0e}_rhoh0_{config_dict['rhoh0']:.2e}_"
+            f"FeH_{config_dict['FeH']}_Mvir_{config_dict['M_vir']:.1e}_"
+            f"{seed_str}_{imf_str}_{pot_str}")
+    
 def extract_growth(model, retained_only=True):
     """Extract max merger mass over time"""
     if not hasattr(model, 'mergers') or model.mergers.empty:
@@ -69,6 +79,21 @@ def main():
     galpy_potential = job['galpy_potential'] == 'True'
     M_vir = float(job['M_vir'])
     c_halo = float(job['c_halo'])
+    
+    config_dict = {
+            "M0": M0,
+            "rhoh0": rhoh0,
+            "FeH": FeH,
+            "rg": rg,
+            "tend": tend,
+            "rantala_imbh_seed": rantala_imbh_seed,
+            "extended_imf": extended_imf,
+            "galpy_potential": galpy_potential,
+            "M_vir": M_vir,
+            "c_halo": c_halo,
+        }
+    
+    config_name = get_config_name(config_dict)
 
     model = cbhbd.CBHBD(
         M0=M0, rhoh0=rhoh0, FeH=FeH, rg=rg, tend=tend,
@@ -92,6 +117,7 @@ def main():
     # Extract Stats 
     stats = {
         "task_id": int(args.task_id), 
+        "config_name": config_name,
         "seed": int(seed),
         "M0": float(M0), 
         "rhoh0": float(rhoh0), 
@@ -111,12 +137,12 @@ def main():
         "v_esc_final": float(model.cluster.vesc[-1]) if len(model.cluster.vesc) > 0 else None,
         "tcr0": float(model.cluster.tcr[0]),
         "n_mergers": int(len(model.mergers)) if hasattr(model, 'mergers') else 0,
-        "successful": True,
         "vesc_t_myr": list(np.array(model.cluster.t) * 1e3), # Gyr to Myr
         "vesc": list(model.cluster.vesc),
         "vesc_cl": list(model.cluster.vesc_cl) if model.cluster.vesc_cl is not None else None, 
         
     }
+    
 
     t_traj, max_mass_traj = extract_growth(model)
     trajectory = {
@@ -141,7 +167,7 @@ def main():
         "mergers": mergers_data  
     }
 
-    run_dir = os.path.join(args.output_dir, f"run_{args.task_id:05d}")
+    run_dir = os.path.join(args.output_dir, config_name, f"run_{args.task_id:05d}")
     os.makedirs(run_dir, exist_ok=True)
     
     with open(os.path.join(run_dir, "data.json"), 'w') as f:

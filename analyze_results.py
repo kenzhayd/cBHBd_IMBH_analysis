@@ -11,6 +11,11 @@ Description:
 Outputs:
     - Summary plots saved in the `summary/` directory.
     - Aggregated statistics saved as `aggregate_stats.csv` and `aggregate_stats.json`.
+    
+Usage:
+    python analyze_results.py --output_dir <OUTPUT_DIR>
+    Ex. python analyze_results.py \
+    --output_dir output/M0_1e+04_rhoh0_2.00e+05_FeH_-1.0_Mvir_1.0e+11_Rantala_ExtIMF_Galpy
 """
 
 import os
@@ -19,12 +24,15 @@ import numpy as np
 import matplotlib.pyplot as plt
 import pandas as pd
 from pathlib import Path
+import argparse
 
-# Configuration
 
-OUTPUT_DIR = Path("output")
-SUMMARY_DIR = OUTPUT_DIR / "summary"
-SUMMARY_DIR.mkdir(parents=True, exist_ok=True)
+# # Configuration
+# parser = argparse.ArgumentParser()
+# parser.add_argument('--output_dir', type=str, default='output', help='Directory containing the output files')
+# args = parser.parse_args()
+
+# output_dir = Path(args.output_dir)
 
 # Colours 
 COLOURS = ["#000000", "#E69F00", "#56B4E8", "#009E73", "#F0E442", "#0072B2", "#D55E00", "#CC79A7"]
@@ -39,11 +47,11 @@ def calculate_sigmas(data):
     return mean_val, std_val, mean_val - std_val, mean_val + std_val, mean_val - 3*std_val, mean_val + 3*std_val
 
 def get_config_name(config_dict):
-    """Creates a readable filename string from config parameters."""
-    seed_str = "Rantala" if config_dict['rantala_imbh_seed'] else "Standtard CBHBD"
-    imf_str = "ExtIMF" if config_dict['extended_imf'] else "Standtard CBHBD"
-    pot_str = "Galpy" if config_dict['galpy_potential'] else "Standtard CBHBD"
-    
+    """Creates filename string from config parameters."""
+    seed_str = "Rantala" if config_dict['rantala_imbh_seed'] else "Standard CBHBD"
+    imf_str = "ExtIMF" if config_dict['extended_imf'] else "Standard CBHBD"
+    pot_str = "Galpy" if config_dict['galpy_potential'] else "Standard CBHBD"
+
     return (f"M0_{config_dict['M0']:.0e}_rhoh0_{config_dict['rhoh0']:.2e}_"
             f"FeH_{config_dict['FeH']}_Mvir_{config_dict['M_vir']:.1e}_"
             f"{seed_str}_{imf_str}_{pot_str}")
@@ -81,6 +89,7 @@ def plot_aggregated_merger_histograms(all_mergers, config_name, output_dir):
         
     plt.xlabel('Merger Product Mass ($M_{\\odot}$)', fontsize=14)
     plt.ylabel('Number of Mergers', fontsize=14)
+    plt.yscale("log")
     plt.legend(fontsize=12)
     plt.grid(axis='y', linestyle='--', alpha=0.7)
     plt.tight_layout()
@@ -119,11 +128,11 @@ def plot_aggregated_kick_vs_time(all_mergers, stats_list, config_name, output_di
             norm=norm,
             marker='^',
             label='Ejected',
-            alpha=0.8,
+            alpha=0.6,
             s=60,
-            edgecolors='black',
+            #edgecolors='black',
             linewidth=0.5,
-            zorder=2
+            zorder=1
         )
 
     if not retained.empty:
@@ -136,11 +145,11 @@ def plot_aggregated_kick_vs_time(all_mergers, stats_list, config_name, output_di
             norm=norm,
             marker='o',
             label='Retained',
-            alpha=0.8,
+            alpha=0.6,
             s=60,
-            edgecolors='black',
-            linewidth=0.8,
-            zorder=3
+            #edgecolors='black',
+            linewidth=0.5,
+            zorder=2
         )
 
     sm = plt.cm.ScalarMappable(cmap=cmap, norm=norm)
@@ -175,8 +184,8 @@ def plot_aggregated_kick_vs_time(all_mergers, stats_list, config_name, output_di
         if vesc_interp:
             mean_vesc = np.mean(vesc_interp, axis=0)
             v_esc_total_0 = mean_vesc[0]
-            ax.plot(common_t_esc, mean_vesc, color=COLOURS[7], linestyle='--', linewidth=2,
-                    label=f'Total $v_{{esc}}$ (Init: {v_esc_total_0:.1f} km/s)')
+            ax.plot(common_t_esc, mean_vesc, color=COLOURS[0], linestyle='-', linewidth=3,
+                    label=f'Total $v_{{esc}}$ (Init: {v_esc_total_0:.1f} km/s)', zorder=3)
 
     # Plot Cluster Escape Velocity 
     if common_t_esc is not None:
@@ -192,8 +201,8 @@ def plot_aggregated_kick_vs_time(all_mergers, stats_list, config_name, output_di
         if vesc_cl_interp:
             mean_vesc_cl = np.mean(vesc_cl_interp, axis=0)
             v_esc_cl_0 = mean_vesc_cl[0]
-            ax.plot(common_t_esc, mean_vesc_cl, color=COLOURS[5], linestyle='--', linewidth=2,
-                    label=f'Cluster $v_{{esc}}$ (Init: {v_esc_cl_0:.1f} km/s)')
+            ax.plot(common_t_esc, mean_vesc_cl, color=COLOURS[0], linestyle='--', linewidth=3,
+                    label=f'Cluster $v_{{esc}}$ (Init: {v_esc_cl_0:.1f} km/s)', zorder=4)
 
     ax.set_xlabel('Time (Myr)', fontsize=14)
     ax.set_ylabel('GW Kick Velocity (km/s)', fontsize=14)
@@ -252,14 +261,14 @@ def plot_aggregated_growth_trajectory(all_trajectories, config_name, output_dir,
     plt.plot(time_grid, mean_mass, label=f'Mean Growth (N={N})',
              color=COLOURS[5], linewidth=2.5, zorder=4)
 
-    # 3. Plot Uncertainties (1σ and 3σ shaded regions)
-    if N >= 2 and np.max(std_mass) > 0:
-        plt.fill_between(time_grid, mean_mass - std_mass, mean_mass + std_mass,
-                         color=COLOURS[5], alpha=0.3, label='1σ', zorder=3)
-        plt.fill_between(time_grid, mean_mass - 3*std_mass, mean_mass + 3*std_mass,
-                         color=COLOURS[5], alpha=0.1, label='3σ', zorder=2)
-    else:
-        print(f"  [Warning] σ=0 with N={N}. Contours omitted. Increase SEEDS.")
+    # # 3. Plot Uncertainties (1σ and 3σ shaded regions)
+    # if N >= 2 and np.max(std_mass) > 0:
+    #     plt.fill_between(time_grid, mean_mass - std_mass, mean_mass + std_mass,
+    #                      color=COLOURS[5], alpha=0.3, label='1σ', zorder=3)
+    #     plt.fill_between(time_grid, mean_mass - 3*std_mass, mean_mass + 3*std_mass,
+    #                      color=COLOURS[5], alpha=0.1, label='3σ', zorder=2)
+    # else:
+    #     print(f"Contours omitted. Increase SEEDS.")
 
     # Formatting
     plt.xlabel('Time (Myr)', fontsize=14)
@@ -300,15 +309,50 @@ def plot_best_growth_trajectory(all_trajectories, config_name, output_dir, all_m
 
 
 # Main Analysis Loop
-def analyze_and_plot():
+def analyze_and_plot(output_dir):
+    
+    output_dir = Path(output_dir)
+    
     # 1. Find all data files
-    data_files = list(OUTPUT_DIR.glob("run_*/data.json"))
-    if not data_files:
-        print("No data.json files found.")
-        return
-        
-    print(f"Found {len(data_files)} run files. Analyzing...")
+    data_files = list(output_dir.glob("run_*/data.json"))
 
+    if not data_files:
+        data_files = list(output_dir.glob("*/run_*/data.json"))
+
+    if not data_files:
+        data_files = [
+            p for p in output_dir.glob("**/data.json")
+            if "summary" not in p.parts
+        ]
+
+    if not data_files:
+        print(f"No data.json files found in {output_dir}")
+        return
+
+    first_file = Path(data_files[0]).resolve()
+
+    candidate_prefix = first_file.parent.parent.name
+
+    generic_names = {
+        "output",
+        "local_test_output",
+        "outputs",
+        ".",
+        ""
+    }
+
+    if candidate_prefix.lower() not in generic_names:
+        summary_prefix = candidate_prefix
+    else:
+        summary_prefix = "generic_name"
+        print(f"Could not infer a meaningful summary prefix from {first_file}. Using '{summary_prefix}'.")
+
+    summary_dir = output_dir / f"{summary_prefix}_summary"
+    summary_dir.mkdir(parents=True, exist_ok=True)
+
+    print(f"Found {len(data_files)} run files.")
+    
+    
     # 2. Load and group by configuration
     configs_found = {}
     for file in data_files:
@@ -380,19 +424,39 @@ def analyze_and_plot():
         aggregate_results.append(summary)
 
         # Generate Plots 
-        plot_aggregated_merger_histograms(run_data['mergers_list'], config_name, SUMMARY_DIR)
-        plot_aggregated_kick_vs_time(run_data['mergers_list'],run_data['stats_list'], config_name, SUMMARY_DIR)
-        plot_best_growth_trajectory(run_data['trajectories_list'], config_name, SUMMARY_DIR, run_data['mergers_list'])        
-        plot_aggregated_growth_trajectory(run_data['trajectories_list'], config_name, SUMMARY_DIR, run_data['mergers_list'])
+        plot_aggregated_merger_histograms(run_data['mergers_list'], config_name, summary_dir)
+        plot_aggregated_kick_vs_time(run_data['mergers_list'],run_data['stats_list'], config_name, summary_dir)
+        plot_best_growth_trajectory(run_data['trajectories_list'], config_name, summary_dir, run_data['mergers_list'])        
+        plot_aggregated_growth_trajectory(run_data['trajectories_list'], config_name, summary_dir, run_data['mergers_list'])
         
-        print(f"----> Saved plots to {SUMMARY_DIR}\n :)")
+        print(f"----> Saved plots to {summary_dir} :)\n ")
 
     # 4. Save statistics to CSV and JSON
-    pd.DataFrame(aggregate_results).to_csv(SUMMARY_DIR / "aggregate_stats.csv", index=False)
-    with open(SUMMARY_DIR / "aggregate_stats.json", 'w') as f:
+    pd.DataFrame(aggregate_results).to_csv(
+        summary_dir / f"{summary_prefix}_aggregate_stats.csv",
+        index=False
+    )
+
+    with open(summary_dir / f"{summary_prefix}_aggregate_stats.json", 'w') as f:
         json.dump(aggregate_results, f, indent=4)
         
     print("Analysis complete!")
 
 if __name__ == "__main__":
-    analyze_and_plot()
+    parser = argparse.ArgumentParser()
+
+    parser.add_argument(
+        "--output_dir",
+        "--output-dir",
+        dest="output_dir",
+        type=str,
+        default="output",
+        help="Directory containing the output files"
+    )
+
+    args = parser.parse_args()
+
+    print("=== Analysis ===")
+    print(f"Output directory being analyzed: {args.output_dir}")
+
+    analyze_and_plot(Path(args.output_dir))
