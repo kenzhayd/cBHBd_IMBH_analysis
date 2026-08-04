@@ -18,10 +18,10 @@ import csv
 # =============================================================================
 # CONFIGURATION
 # =============================================================================
-job_list_name = "cbhbd_job2.csv"
+job_list_name = "control_densities.csv"
 
 M0 = [1e7]
-LOG_RHO = [6.62]  # 5.62 in paper
+LOG_RHO = [5.62, 6.62]  # 5.62 in paper
 RHO = [10 ** x for x in LOG_RHO]
 Z_FEH = [-1.7]
 RG = [26.25]
@@ -30,9 +30,9 @@ TEND = [3000]
 # Set this to range(1, 501) to run 500 seeds per configuration
 SEEDS = range(1, 501) 
 
-RANTALA_IMBH_SEED = [True]  # Toggle Rantala 2026 IMBH seed formation
-EXTENDED_IMF = [True]       # Toggle Extended IMF
-GALPY_POTENTIAL = [True]    # Toggle Galpy NFW Halo Potential
+RANTALA_IMBH_SEED = [False]  # Toggle Rantala 2026 IMBH seed formation
+EXTENDED_IMF = [False]       # Toggle Extended IMF
+GALPY_POTENTIAL = [False]    # Toggle Galpy NFW Halo Potential
 M_VIR = [1e9]              # Virial mass used if galpy potential is enabled. [1e12 Msun]
 C_HALO = [17]               # NFW Concentration parameter used if galpy potential is enabled.
 
