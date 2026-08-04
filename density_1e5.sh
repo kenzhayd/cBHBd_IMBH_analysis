@@ -4,8 +4,8 @@
 #SBATCH --nodes=1
 #SBATCH --cpus-per-task=1       
 #SBATCH --mem=3G                
-#SBATCH --time=03:00:00
-#SBATCH --array=1-1000%192               # Change to match jobs.csv line count. --array=1-500%192  allows no more than 192 of the 500 jobs to run at once
+#SBATCH --time=02:00:00
+#SBATCH --array=1-500%192               # Change to match jobs.csv line count. --array=1-500%192  allows no more than 192 of the 500 jobs to run at once
 #SBATCH --output=logs/slurm-%A_%a.out   # Job ID and Array Task ID 
 #SBATCH --error=logs/slurm-%A_%a.err
 #SBATCH --mail-type=ALL
