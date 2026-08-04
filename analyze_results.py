@@ -14,8 +14,7 @@ Outputs:
     
 Usage:
     python analyze_results.py --output_dir <OUTPUT_DIR>
-    Ex. python analyze_results.py \
-    --output_dir output/M0_1e+04_rhoh0_2.00e+05_FeH_-1.0_Mvir_1.0e+11_Rantala_ExtIMF_Galpy
+    Ex. python analyze_results.py --output_dir output/M0_1e+04_rhoh0_2.00e+05_FeH_-1.0_Mvir_1.0e+11_Rantala_ExtIMF_Galpy
 """
 
 import os
@@ -47,14 +46,27 @@ def calculate_sigmas(data):
     return mean_val, std_val, mean_val - std_val, mean_val + std_val, mean_val - 3*std_val, mean_val + 3*std_val
 
 def get_config_name(config_dict):
-    """Creates filename string from config parameters."""
-    seed_str = "Rantala" if config_dict['rantala_imbh_seed'] else "Standard CBHBD"
-    imf_str = "ExtIMF" if config_dict['extended_imf'] else "Standard CBHBD"
-    pot_str = "Galpy" if config_dict['galpy_potential'] else "Standard CBHBD"
+    """
+    Creates a filename from all config parameters.
+    """
+    seed_str = "RantalaSeed" if config_dict["rantala_imbh_seed"] else "StdSeed"
+    imf_str = "ExtIMF" if config_dict["extended_imf"] else "StdIMF"
+    pot_str = "GalpyPot" if config_dict["galpy_potential"] else "StdPot"
 
-    return (f"M0_{config_dict['M0']:.0e}_rhoh0_{config_dict['rhoh0']:.2e}_"
-            f"FeH_{config_dict['FeH']}_Mvir_{config_dict['M_vir']:.1e}_"
-            f"{seed_str}_{imf_str}_{pot_str}")
+    parts = [
+        f"M0_{config_dict['M0']:.0e}",
+        f"rhoh0_{config_dict['rhoh0']:.2e}",
+        f"FeH_{config_dict['FeH']:.1f}",
+        f"rg_{config_dict['rg']:.2f}",
+        f"tend_{config_dict['tend']:.2f}",
+        f"Mvir_{config_dict['M_vir']:.1e}",
+        f"cHalo_{config_dict['c_halo']:.2f}",
+        seed_str,
+        imf_str,
+        pot_str,
+    ]
+
+    return "_".join(parts)
 
 def compute_retention_flags(mergers_list):
     """

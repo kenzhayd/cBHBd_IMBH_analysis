@@ -23,16 +23,30 @@ import os
 import numpy as np
 from cbhbd import cbhbd
 
-def get_config_name(config_dict):
-    """Creates filename string from config parameters."""
-    seed_str = "Rantala" if config_dict['rantala_imbh_seed'] else "Standard CBHBD"
-    imf_str = "ExtIMF" if config_dict['extended_imf'] else "Standard CBHBD"
-    pot_str = "Galpy" if config_dict['galpy_potential'] else "Standard CBHBD"
 
-    return (f"M0_{config_dict['M0']:.0e}_rhoh0_{config_dict['rhoh0']:.2e}_"
-            f"FeH_{config_dict['FeH']}_Mvir_{config_dict['M_vir']:.1e}_"
-            f"{seed_str}_{imf_str}_{pot_str}")
-    
+def get_config_name(config_dict):
+    """
+    Creates a filename from all config parameters.
+    """
+    seed_str = "RantalaSeed" if config_dict["rantala_imbh_seed"] else "StdSeed"
+    imf_str = "ExtIMF" if config_dict["extended_imf"] else "StdIMF"
+    pot_str = "GalpyPot" if config_dict["galpy_potential"] else "StdPot"
+
+    parts = [
+        f"M0_{config_dict['M0']:.0e}",
+        f"rhoh0_{config_dict['rhoh0']:.2e}",
+        f"FeH_{config_dict['FeH']:.1f}",
+        f"rg_{config_dict['rg']:.2f}",
+        f"tend_{config_dict['tend']:.2f}",
+        f"Mvir_{config_dict['M_vir']:.1e}",
+        f"cHalo_{config_dict['c_halo']:.2f}",
+        seed_str,
+        imf_str,
+        pot_str,
+    ]
+
+    return "_".join(parts)
+
 def extract_growth(model, retained_only=True):
     """Extract max merger mass over time"""
     if not hasattr(model, 'mergers') or model.mergers.empty:
