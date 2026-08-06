@@ -29,7 +29,7 @@ def get_config_name(config_dict):
     Creates a filename from all config parameters.
     """
     seed_str = "RantalaSeed" if config_dict["rantala_imbh_seed"] else "StdSeed"
-    imf_str = "ExtIMF" if config_dict["extended_imf"] else "StdIMF"
+    imf_str = "ExtIMF" if config_dict["chattopadhyay_seed"] else "StdIMF"
     pot_str = "GalpyPot" if config_dict["galpy_potential"] else "StdPot"
 
     parts = [
@@ -89,7 +89,7 @@ def main():
     seed = int(job['seed'])
     
     rantala_imbh_seed = job['rantala_imbh_seed'] == 'True'
-    extended_imf = job['extended_imf'] == 'True'
+    chattopadhyay_seed= job['chattopadhyay_seed'] == 'True'
     galpy_potential = job['galpy_potential'] == 'True'
     M_vir = float(job['M_vir'])
     c_halo = float(job['c_halo'])
@@ -101,7 +101,7 @@ def main():
             "rg": rg,
             "tend": tend,
             "rantala_imbh_seed": rantala_imbh_seed,
-            "extended_imf": extended_imf,
+            "chattopadhyay_seed": chattopadhyay_seed,
             "galpy_potential": galpy_potential,
             "M_vir": M_vir,
             "c_halo": c_halo,
@@ -115,7 +115,7 @@ def main():
         remnant_model="RemnantModelIslam26", ifmr="sevn-rapid",
         seed=seed, 
         rantala_imbh_seed=rantala_imbh_seed,
-        extended_imf=extended_imf,
+        chattopadhyay_seed=chattopadhyay_seed,
         verbose=False,
         a_slopes=[-0.3, -1.65, -2.3], 
         m_breaks=[0.08, 0.4, 1, 150],
@@ -139,7 +139,7 @@ def main():
         "rg": float(rg), 
         "tend": float(tend),
         "rantala_imbh_seed": bool(rantala_imbh_seed),
-        "extended_imf": bool(extended_imf),
+        "chattopadhyay_seed": bool(chattopadhyay_seed),
         "galpy_potential": bool(galpy_potential),
         "M_vir": float(M_vir),
         "c_halo": float(c_halo),

@@ -50,7 +50,7 @@ def get_config_name(config_dict):
     Creates a filename from all config parameters.
     """
     seed_str = "RantalaSeed" if config_dict["rantala_imbh_seed"] else "StdSeed"
-    imf_str = "ExtIMF" if config_dict["extended_imf"] else "StdIMF"
+    imf_str = "ExtIMF" if config_dict["chattopadhyay_seed"] else "StdIMF"
     pot_str = "GalpyPot" if config_dict["galpy_potential"] else "StdPot"
 
     parts = [
@@ -375,7 +375,7 @@ def analyze_and_plot(output_dir):
         
         config_key = (
             stats['M0'], stats['rhoh0'], stats['FeH'], stats['rg'], stats['tend'],
-            stats['rantala_imbh_seed'], stats['extended_imf'], stats['galpy_potential'], 
+            stats['rantala_imbh_seed'], stats['chattopadhyay_seed'], stats['galpy_potential'], 
             stats['M_vir'], stats['c_halo']
         )
         
@@ -408,7 +408,7 @@ def analyze_and_plot(output_dir):
         config_dict = {
             'M0': config_key[0], 'rhoh0': config_key[1], 'FeH': config_key[2], 
             'rg': config_key[3], 'tend': config_key[4], 'rantala_imbh_seed': config_key[5],
-            'extended_imf': config_key[6], 'galpy_potential': config_key[7], 
+            'chattopadhyay_seed': config_key[6], 'galpy_potential': config_key[7], 
             'M_vir': config_key[8], 'c_halo': config_key[9]
         }
         config_name = get_config_name(config_dict)
