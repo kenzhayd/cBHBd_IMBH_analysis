@@ -1,0 +1,2 @@
+configuration,total_runs,final_IMBH_mass_mean,final_IMBH_mass_std,final_IMBH_mass_1sigma,final_IMBH_mass_3sigma,mean_initial_v_esc,mean_final_v_esc
+"{'M0': 10000000.0, 'rhoh0': 416869.3834703355, 'FeH': -1.7, 'rg': 26.25, 'tend': 3000.0, 'rantala_imbh_seed': True, 'chattopadhyay_seed': False, 'galpy_potential': True, 'M_vir': 1000000000.0, 'c_halo': 5.0}",200,6140.9487311543235,1151.285438911968,"[4989.663292242356, 7292.234170066291]","[2687.0924144184196, 9594.805047890228]",296.8846997232667,102.09935341866002
