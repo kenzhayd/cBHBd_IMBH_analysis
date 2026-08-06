@@ -89,8 +89,9 @@ def main():
     seed = int(job['seed'])
     
     rantala_imbh_seed = job['rantala_imbh_seed'] == 'True'
-    chattopadhyay_seed= job['chattopadhyay_seed'] == 'True'
+    chattopadhyay_seed = job['chattopadhyay_seed'] == 'True'
     galpy_potential = job['galpy_potential'] == 'True'
+    
     M_vir = float(job['M_vir'])
     c_halo = float(job['c_halo'])
     

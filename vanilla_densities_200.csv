@@ -1,4 +1,4 @@
-task_id,M0,rhoh0,FeH,rg,tend,seed,rantala_imbh_seed,extended_imf,galpy_potential,M_vir,c_halo
+task_id,M0,rhoh0,FeH,rg,tend,seed,rantala_imbh_seed,chattopadhyay_seed,galpy_potential,M_vir,c_halo
 1,10000000.0,416869.3834703355,-1.7,26.25,3000,1,False,False,False,1000000000.0,7
 2,10000000.0,416869.3834703355,-1.7,26.25,3000,2,False,False,False,1000000000.0,7
 3,10000000.0,416869.3834703355,-1.7,26.25,3000,3,False,False,False,1000000000.0,7

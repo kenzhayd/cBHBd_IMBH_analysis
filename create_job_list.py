@@ -18,7 +18,7 @@ import csv
 # =============================================================================
 # CONFIGURATION
 # =============================================================================
-job_list_name = "concentrations_200.csv"
+job_list_name = "vanilla_densities_200.csv"
 
 M0 = [1e7]
 LOG_RHO = [5.62]  # 5.62 in paper
