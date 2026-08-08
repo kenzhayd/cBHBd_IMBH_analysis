@@ -46,45 +46,6 @@ def get_config_name(config_dict):
     return "_".join(PARAM_LABEL[k](config_dict[k]) for k in CONFIG_KEYS)
 
 
-# def parse_config_from_folder(folder_name):
-#     """
-#     Fallback: parse the folder name back into a config dict.
-#     Only used if the stats blocks are missing/unreadable.
-#     """
-#     config = {}
-#     parts = folder_name.split('_')
-#     key_map = {
-#         'M0': float, 'rhoh0': float, 'FeH': float, 'rg': float, 'tend': float,
-#         'Mvir': float, 'cHalo': float,
-#     }
-#     bool_map = {
-#         'RantalaSeed': ('rantala_imbh_seed', True),  'StdSeed': ('rantala_imbh_seed', False),
-#         'ExtIMF':      ('chattopadhyay_seed', True), 'StdIMF':  ('chattopadhyay_seed', False),
-#         'GalpyPot':    ('galpy_potential', True),    'StdPot':  ('galpy_potential', False),
-#     }
-#     i = 0
-#     while i < len(parts):
-#         part = parts[i]
-#         if part in key_map and i + 1 < len(parts):
-#             try:
-#                 val = key_map[part](parts[i + 1])
-#                 config['M_vir' if part == 'Mvir' else 'c_halo' if part == 'cHalo' else part] = val
-#                 i += 2
-#                 continue
-#             except ValueError:
-#                 pass
-#         if part in bool_map:
-#             config[bool_map[part][0]] = bool_map[part][1]
-#             i += 1
-#             continue
-#         i += 1
-
-#     # Defaults so label generation can never KeyError
-#     for k in CONFIG_KEYS:
-#         config.setdefault(k, False if k in ('rantala_imbh_seed', 'chattopadhyay_seed', 'galpy_potential') else 0.0)
-#     return config
-
-
 def load_config_data(config_dir):
     """
     Reads all run_*/data.json under a config folder.
@@ -164,10 +125,10 @@ def main():
         return
 
     # X-axis grid: 100 to biggest IMBH formed across all runs
-    x_min = 100.0
+    x_min = 100
     x_max = global_max_mass
     if x_max <= x_min:
-        print(f"[Warning] Largest IMBH ({x_max:.1f} Msun) <= {x_min:.0f} Msun; "
+        print(f"Largest IMBH ({x_max:.1f} Msun) <= {x_min:.0f} Msun; "
               f"extending axis to 1e3 for a valid log plot.")
         x_max = 1e3
     mass_thresholds = np.logspace(np.log10(x_min), np.log10(x_max), 500)
@@ -196,7 +157,7 @@ def main():
             label = folder_name if len(folder_name) <= 40 else folder_name[:37] + "..."
 
         plt.plot(mass_thresholds, probs, label=label,
-                 color=COLOURS[i+1 % len(COLOURS)], linewidth=2.5)
+                 color=COLOURS[(i+1) % len(COLOURS)], linewidth=2.5)
 
     plt.axvline(x=500, color=COLOURS[0], linestyle=':', linewidth=2, label='500 $M_{\odot}$')
 
@@ -206,16 +167,70 @@ def main():
     plt.ylabel(r'$p(M_{\text{BH}} > M)$', fontsize=14)
     plt.xlim(x_min, x_max)
     plt.ylim(0, 1.05)
-    plt.grid(True, linestyle='--', alpha=0.7)
+   
 
-    
+    # Major and minor ticks 
+    ax = plt.gca()
+
+    # Tick appearance
+    ax.tick_params(axis='both', which='major', length=7, width=1.2)
+    ax.tick_params(axis='both', which='minor', length=4, width=0.8)
+
+    plt.grid(True, which='major', linestyle='--', alpha=0.7)
+    plt.grid(True, which='minor', linestyle=':', alpha=0.35)
     plt.legend( fontsize=12, title_fontsize=13, loc='best')
+    
     plt.tight_layout()
 
     output_path = parent_path / args.output_file
     plt.savefig(output_path, dpi=300)
     plt.close()
     print(f"\nPlot saved to {output_path}")
+    
+    
+    
+    # Plotting Overlaid Histograms
+    fig, ax = plt.subplots(figsize=(10, 6))
+    
+    # Define a common bin array so all histograms are directly comparable
+    bins = np.logspace(np.log10(x_min), np.log10(x_max), 50)
+    
+    for i, folder_name in enumerate(sorted(all_data.keys())):
+        masses = all_data[folder_name]['masses']
+        config = all_data[folder_name]['config']
+        
+        if varying_params:
+            label = ", ".join(PARAM_LABEL[k](config[k]) for k in varying_params)
+        else:
+            label = folder_name if len(folder_name) <= 40 else folder_name[:37] + "..."
+            
+        color = COLOURS[(i + 1) % len(COLOURS)]
+        
+        # We use histtype='step' with a thick line. This is the cleanest way to overlay 
+        # multiple distributions without the colors blending into a muddy mess.
+        ax.hist(masses, bins=bins, histtype='step', linewidth=2.5, 
+                color=color, label=label, zorder=10-i)
+        
+        # Add a very faint shaded fill under the line for easier visual tracking
+        ax.hist(masses, bins=bins, histtype='stepfilled', alpha=0.15, 
+                color=color, zorder=2)
+
+    ax.set_xlabel('Retained Merger Product Mass ($M_{\odot}$)', fontsize=14)
+    ax.set_ylabel('Number of Mergers', fontsize=14)
+    plt.axvline(x=500, color=COLOURS[0], linestyle=':', linewidth=2, label='500 $M_{\odot}$', zorder=100)
+ 
+    # A log scale on the y-axis is highly recommended for merger mass distributions
+    ax.set_yscale('log') 
+    ax.set_xscale('log') 
+    ax.grid(True, linestyle='--', alpha=0.6, which='both')
+    ax.legend(fontsize=11, loc='best')
+    
+    plt.tight_layout()
+    
+    hist_path = parent_path / "mass_histograms.png"
+    plt.savefig(hist_path, dpi=300)
+    plt.close()
+    print(f"\nPlot saved to {hist_path}")
 
 
 if __name__ == "__main__":

@@ -117,7 +117,7 @@ def main():
         chattopadhyay_seed=chattopadhyay_seed,
         verbose=False,
         a_slopes=[-0.3, -1.65, -2.3], 
-        m_breaks=[0.08, 0.4, 1, 300],    # Extended IMF with upper limit 300 Msun
+        m_breaks=[0.08, 0.4, 1, 250],    # Extended IMF with upper limit 250 Msun
         galpy_potential=galpy_potential,
         M_vir=M_vir,
         conc=c_halo,
