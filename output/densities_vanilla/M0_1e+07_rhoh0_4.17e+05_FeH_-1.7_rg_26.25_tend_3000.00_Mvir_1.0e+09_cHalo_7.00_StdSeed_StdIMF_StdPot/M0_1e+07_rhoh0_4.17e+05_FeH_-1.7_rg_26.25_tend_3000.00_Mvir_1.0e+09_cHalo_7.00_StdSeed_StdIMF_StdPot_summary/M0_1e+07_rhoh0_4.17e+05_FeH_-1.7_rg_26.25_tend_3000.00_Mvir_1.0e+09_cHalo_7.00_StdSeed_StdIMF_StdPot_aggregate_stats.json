@@ -1,0 +1,29 @@
+[
+    {
+        "configuration": {
+            "M0": 10000000.0,
+            "rhoh0": 416869.3834703355,
+            "FeH": -1.7,
+            "rg": 26.25,
+            "tend": 3000.0,
+            "rantala_imbh_seed": false,
+            "chattopadhyay_seed": false,
+            "galpy_potential": false,
+            "M_vir": 1000000000.0,
+            "c_halo": 7.0
+        },
+        "total_runs": 200,
+        "final_IMBH_mass_mean": 178.5739197239308,
+        "final_IMBH_mass_std": 44.40247341667594,
+        "final_IMBH_mass_1sigma": [
+            134.17144630725485,
+            222.97639314060675
+        ],
+        "final_IMBH_mass_3sigma": [
+            45.36649947390299,
+            311.7813399739586
+        ],
+        "mean_initial_v_esc": 294.4218276777945,
+        "mean_final_v_esc": 94.69160796148779
+    }
+]

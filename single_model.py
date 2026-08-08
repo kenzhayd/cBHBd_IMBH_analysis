@@ -4,16 +4,14 @@ single_model.py
 Description:
     Runs a single CBHBD simulation.
     It reads a specific parameter set from a job list CSV based on a provided `task_id`, 
-    initializes the `cbhbd` model, runs and saves the results 
-    to a  JSON file.
+    initializes the `cbhbd` model, runs and saves the results to a  JSON file.
+    
+    Extended IMF is used with an upper limit of 300 Msun.
 
 Usage:
     python single_model.py --task_id <ID> --jobs_file <CSV_PATH> --output_dir <DIR_PATH>
 
 
-Outputs:
-    - A directory named `run_<task_id>` containing a `data.json` file with the complete 
-      simulation state, statistics, trajectory, and merger details.
 """
 
 import argparse
@@ -119,7 +117,7 @@ def main():
         chattopadhyay_seed=chattopadhyay_seed,
         verbose=False,
         a_slopes=[-0.3, -1.65, -2.3], 
-        m_breaks=[0.08, 0.4, 1, 150],
+        m_breaks=[0.08, 0.4, 1, 300],    # Extended IMF with upper limit 300 Msun
         galpy_potential=galpy_potential,
         M_vir=M_vir,
         conc=c_halo,
