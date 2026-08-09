@@ -87,8 +87,8 @@ job_script = f"""#!/bin/bash
 #SBATCH --mail-type=ALL
 #SBATCH --mail-user={SLURM_EMAIL}
 
-mkdir -p logs
-mkdir -p output
+mkdir -p logs/{job_list_name}
+mkdir -p output/{job_list_name}
 module load gcc arrow
 
 # Load environment
@@ -98,7 +98,7 @@ source /home/kenzhayd/projects/def-vhenault/kenzhayd/cbhbd_env/bin/activate
 cd /home/kenzhayd/projects/def-vhenault/kenzhayd/cBHBd_IMBH_analysis
 
 # Run the single model script, passing the SLURM Array Task ID
-python single_model.py --task_id $SLURM_ARRAY_TASK_ID --jobs_file {csv_path.name} --output_dir output
+python single_model.py --task_id $SLURM_ARRAY_TASK_ID --jobs_file {csv_path.name} --output_dir output/{job_list_name}
 """
 
 with open(job_script_path, 'w') as f:
