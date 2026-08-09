@@ -53,7 +53,7 @@ def load_config_data(config_dir):
     Returns (final_masses_array, all_merger_masses_array, config_dict).
     """
     final_masses = []
-    all_merger_masses = [] # <--- NEW: To store every m_rem
+    all_merger_masses = [] 
     config = None
 
     data_files = sorted(config_dir.glob("run_*/data.json"))
@@ -72,12 +72,12 @@ def load_config_data(config_dir):
         if config is None and all(k in stats for k in CONFIG_KEYS):
             config = {k: stats[k] for k in CONFIG_KEYS}
 
-        # 1. Get Final IMBH Mass (for the probability plot)
+        # Get Final IMBH Mass (for the probability plot)
         mass = stats.get('mIMBH_final', None)
         if mass is not None and not np.isnan(mass):
             final_masses.append(float(mass))
             
-        # 2. Get All Merger Masses (for the histogram)
+        # Get All Merger Masses (for the histogram)
         mergers = data.get('mergers', [])
         for m in mergers:
             m_rem = m.get('m_rem')
@@ -114,7 +114,7 @@ def main():
     all_data = {}
     global_max_final_mass = 0.0
     
-    # We need a global min/max for the histogram specifically
+    # global min/max for the histogram 
     global_min_merger_mass = float('inf')
     global_max_merger_mass = 0.0
 
@@ -135,11 +135,11 @@ def main():
             'config': config
         }
         
-        # Track ranges for Probability Plot (Final Masses)
+        # Track ranges for Probability Plot 
         if final_masses.size > 0:
             global_max_final_mass = max(global_max_final_mass, float(np.max(final_masses)))
             
-        # Track ranges for Histogram (All Merger Masses)
+        # Track ranges for Histogram 
         if merger_masses.size > 0:
             global_min_merger_mass = min(global_min_merger_mass, float(np.min(merger_masses)))
             global_max_merger_mass = max(global_max_merger_mass, float(np.max(merger_masses)))
@@ -150,9 +150,7 @@ def main():
         print("No data found to plot.")
         return
 
-    # ==========================================
-    # PLOT 1: Probability p(M_BH > M)
-    # ==========================================
+    # Probability p(M_BH > M) Plot
     
     # X-axis grid: 100 to biggest IMBH formed across all runs
     x_min = 100.0
@@ -165,7 +163,7 @@ def main():
     mass_thresholds = np.logspace(np.log10(x_min), np.log10(x_max), 500)
     print(f"\nPlotting probability mass range: {x_min:.0f} to {x_max:.2f} Msun")
 
-    # What ICs vary across the folders (for the legend)
+    # What ICs vary across the folders? 
     varying_params = [
         k for k in CONFIG_KEYS
         if len({all_data[name]['config'][k] for name in all_data}) > 1
@@ -197,7 +195,7 @@ def main():
     # Formatting
     plt.xscale('log')
     plt.xlabel(r'Mass ($M_{\odot}$)', fontsize=14)
-    plt.ylabel(r'$p(M_{\text{BH}} > M)$', fontsize=14)
+    plt.ylabel(r'$p(M_{\text{IMBH}} > M)$', fontsize=14)
     plt.xlim(x_min, x_max)
     plt.ylim(0, 1.05)
    
@@ -217,23 +215,18 @@ def main():
     print(f"\nPlot saved to {output_path}")
     
     
-    # ==========================================
-    # PLOT 2: Overlaid Histograms (ALL MERGERS)
-    # ==========================================
+    # Overlaid Histograms 
     
     fig, ax = plt.subplots(figsize=(10, 6))
     
     # Use the GLOBAL min/max calculated from ALL merger masses (m_rem)
-    # This ensures the plot starts from the smallest BH (~5-10 Msun), not 100.
     hist_x_min = global_min_merger_mass
     hist_x_max = global_max_merger_mass
     
-    # Safety check for log scale
-    if hist_x_min <= 0: hist_x_min = 1.0 
 
     print(f"\nPlotting histogram mass range: {hist_x_min:.2f} to {hist_x_max:.2f} Msun")
 
-    # Define common bins covering the full actual mass range
+    # bins covering the mass range
     bins = np.logspace(
         np.log10(hist_x_min),
         np.log10(hist_x_max),
@@ -241,7 +234,6 @@ def main():
     )
     
     for i, folder_name in enumerate(sorted(all_data.keys())):
-        # Use merger_masses for this plot
         masses = all_data[folder_name]['merger_masses']
         config = all_data[folder_name]['config']
         
@@ -254,11 +246,9 @@ def main():
             
         color = COLOURS[(i + 1) % len(COLOURS)]
         
-        # We use histtype='step' with a thick line.
         ax.hist(masses, bins=bins, histtype='step', linewidth=2.5, 
                 color=color, label=label, zorder=10-i)
         
-        # Add a very faint shaded fill under the line
         ax.hist(masses, bins=bins, histtype='stepfilled', alpha=0.25, 
                 color=color, zorder=2)
 
