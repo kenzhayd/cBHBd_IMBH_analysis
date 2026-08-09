@@ -5,6 +5,7 @@ Description:
 Aggregates results from multiple configuration folders within a parent directory.
 Plots probability of forming a Black Hole above a certain mass,
 p(M_BH > M), for different initial conditions.
+ALSO plots overlaid histograms of ALL retained merger masses.
 
 Usage:
     python analyse_many_results.py --parent_dir <PATH_TO_PARENT_FOLDER>
@@ -49,10 +50,10 @@ def get_config_name(config_dict):
 def load_config_data(config_dir):
     """
     Reads all run_*/data.json under a config folder.
-    Returns (masses_array, config_dict). Config is taken from the stats block
-    of the first readable file (same source of truth as analyse_results.py).
+    Returns (final_masses_array, all_merger_masses_array, config_dict).
     """
-    masses = []
+    final_masses = []
+    all_merger_masses = [] # <--- NEW: To store every m_rem
     config = None
 
     data_files = sorted(config_dir.glob("run_*/data.json"))
@@ -71,14 +72,20 @@ def load_config_data(config_dir):
         if config is None and all(k in stats for k in CONFIG_KEYS):
             config = {k: stats[k] for k in CONFIG_KEYS}
 
+        # 1. Get Final IMBH Mass (for the probability plot)
         mass = stats.get('mIMBH_final', None)
         if mass is not None and not np.isnan(mass):
-            masses.append(float(mass))
+            final_masses.append(float(mass))
+            
+        # 2. Get All Merger Masses (for the histogram)
+        mergers = data.get('mergers', [])
+        for m in mergers:
+            m_rem = m.get('m_rem')
+            if m_rem is not None:
+                all_merger_masses.append(float(m_rem))
 
-    return np.array(masses), config
+    return np.array(final_masses), np.array(all_merger_masses), config
 
-# Probability of forming a Black Hole above a certain mass threshold,
-# p(M_BH > M), for different initial conditions.
 def main():
     parser = argparse.ArgumentParser(description="analyse multiple configuration results.")
     parser.add_argument("--parent_dir", "--parent-dir", dest="parent_dir", type=str, required=True,
@@ -103,36 +110,60 @@ def main():
         return
     print(f"Found {len(config_dirs)} configurations in {parent_path}.")
 
-    # Load data and find max mass
+    # Load data
     all_data = {}
-    global_max_mass = 0.0
+    global_max_final_mass = 0.0
+    
+    # We need a global min/max for the histogram specifically
+    global_min_merger_mass = float('inf')
+    global_max_merger_mass = 0.0
+
     for config_dir in config_dirs:
         print(f"Looking at {config_dir.name} :)")
-        masses, config = load_config_data(config_dir)
+        # Unpack the new return value
+        final_masses, merger_masses, config = load_config_data(config_dir)
 
-        if masses.size == 0:
+        if final_masses.size == 0 and merger_masses.size == 0:
             print("No BHs? Something's weird.")
             continue
         if config is None:
             print("Config not readable from stats. Make sure the stats block is properly formatted.")
 
-        all_data[config_dir.name] = {'masses': masses, 'config': config}
-        global_max_mass = max(global_max_mass, float(np.max(masses)))
-        print(f"Found {masses.size} runs. Max Mass: {np.max(masses):.2f} Msun")
+        all_data[config_dir.name] = {
+            'final_masses': final_masses, 
+            'merger_masses': merger_masses, # Store the full list
+            'config': config
+        }
+        
+        # Track ranges for Probability Plot (Final Masses)
+        if final_masses.size > 0:
+            global_max_final_mass = max(global_max_final_mass, float(np.max(final_masses)))
+            
+        # Track ranges for Histogram (All Merger Masses)
+        if merger_masses.size > 0:
+            global_min_merger_mass = min(global_min_merger_mass, float(np.min(merger_masses)))
+            global_max_merger_mass = max(global_max_merger_mass, float(np.max(merger_masses)))
+            
+        print(f"Found {final_masses.size} runs. Max Final Mass: {np.max(final_masses) if final_masses.size > 0 else 0:.2f} Msun. Total Mergers: {merger_masses.size}")
 
     if not all_data:
         print("No data found to plot.")
         return
 
+    # ==========================================
+    # PLOT 1: Probability p(M_BH > M)
+    # ==========================================
+    
     # X-axis grid: 100 to biggest IMBH formed across all runs
-    x_min = 100
-    x_max = global_max_mass
+    x_min = 100.0
+    x_max = global_max_final_mass
     if x_max <= x_min:
         print(f"Largest IMBH ({x_max:.1f} Msun) <= {x_min:.0f} Msun; "
               f"extending axis to 1e3 for a valid log plot.")
         x_max = 1e3
+        
     mass_thresholds = np.logspace(np.log10(x_min), np.log10(x_max), 500)
-    print(f"\nPlotting mass range: {x_min:.0f} to {x_max:.2f} Msun")
+    print(f"\nPlotting probability mass range: {x_min:.0f} to {x_max:.2f} Msun")
 
     # What ICs vary across the folders (for the legend)
     varying_params = [
@@ -141,11 +172,13 @@ def main():
     ]
     print(f"ICs being varied: {varying_params}")
 
-    # Plotting
     plt.figure(figsize=(10, 6))
     for i, folder_name in enumerate(sorted(all_data.keys())):
-        masses = all_data[folder_name]['masses']
+        # Use final_masses for this plot
+        masses = all_data[folder_name]['final_masses']
         config = all_data[folder_name]['config']
+
+        if masses.size == 0: continue
 
         # p(M_BH > M) = 1 - (#masses <= M)/N
         m_sorted = np.sort(masses)
@@ -168,17 +201,13 @@ def main():
     plt.xlim(x_min, x_max)
     plt.ylim(0, 1.05)
    
-
-    # Major and minor ticks 
     ax = plt.gca()
-
-    # Tick appearance
     ax.tick_params(axis='both', which='major', length=7, width=1.2)
     ax.tick_params(axis='both', which='minor', length=4, width=0.8)
 
     plt.grid(True, which='major', linestyle='--', alpha=0.7)
     plt.grid(True, which='minor', linestyle=':', alpha=0.35)
-    plt.legend( fontsize=12, title_fontsize=13, loc='best')
+    plt.legend(fontsize=12, title_fontsize=13, loc='best')
     
     plt.tight_layout()
 
@@ -188,16 +217,35 @@ def main():
     print(f"\nPlot saved to {output_path}")
     
     
+    # ==========================================
+    # PLOT 2: Overlaid Histograms (ALL MERGERS)
+    # ==========================================
     
-    # Plotting Overlaid Histograms
     fig, ax = plt.subplots(figsize=(10, 6))
     
-    # Define a common bin array so all histograms are directly comparable
-    bins = np.logspace(np.log10(x_min), np.log10(x_max), 50)
+    # Use the GLOBAL min/max calculated from ALL merger masses (m_rem)
+    # This ensures the plot starts from the smallest BH (~5-10 Msun), not 100.
+    hist_x_min = global_min_merger_mass
+    hist_x_max = global_max_merger_mass
+    
+    # Safety check for log scale
+    if hist_x_min <= 0: hist_x_min = 1.0 
+
+    print(f"\nPlotting histogram mass range: {hist_x_min:.2f} to {hist_x_max:.2f} Msun")
+
+    # Define common bins covering the full actual mass range
+    bins = np.logspace(
+        np.log10(hist_x_min),
+        np.log10(hist_x_max),
+        50
+    )
     
     for i, folder_name in enumerate(sorted(all_data.keys())):
-        masses = all_data[folder_name]['masses']
+        # Use merger_masses for this plot
+        masses = all_data[folder_name]['merger_masses']
         config = all_data[folder_name]['config']
+        
+        if masses.size == 0: continue
         
         if varying_params:
             label = ", ".join(PARAM_LABEL[k](config[k]) for k in varying_params)
@@ -206,23 +254,21 @@ def main():
             
         color = COLOURS[(i + 1) % len(COLOURS)]
         
-        # We use histtype='step' with a thick line. This is the cleanest way to overlay 
-        # multiple distributions without the colors blending into a muddy mess.
+        # We use histtype='step' with a thick line.
         ax.hist(masses, bins=bins, histtype='step', linewidth=2.5, 
                 color=color, label=label, zorder=10-i)
         
-        # Add a very faint shaded fill under the line for easier visual tracking
-        ax.hist(masses, bins=bins, histtype='stepfilled', alpha=0.15, 
+        # Add a very faint shaded fill under the line
+        ax.hist(masses, bins=bins, histtype='stepfilled', alpha=0.25, 
                 color=color, zorder=2)
 
-    ax.set_xlabel('Retained Merger Product Mass ($M_{\odot}$)', fontsize=14)
+    ax.set_xlabel('Merger Product Mass ($M_{\odot}$)', fontsize=14)
     ax.set_ylabel('Number of Mergers', fontsize=14)
     plt.axvline(x=500, color=COLOURS[0], linestyle=':', linewidth=2, label='500 $M_{\odot}$', zorder=100)
  
-    # A log scale on the y-axis is highly recommended for merger mass distributions
     ax.set_yscale('log') 
     ax.set_xscale('log') 
-    ax.grid(True, linestyle='--', alpha=0.6, which='both')
+    ax.grid(True, linestyle='--', alpha=0.6, which='major')
     ax.legend(fontsize=11, loc='best')
     
     plt.tight_layout()
@@ -230,7 +276,7 @@ def main():
     hist_path = parent_path / "mass_histograms.png"
     plt.savefig(hist_path, dpi=300)
     plt.close()
-    print(f"\nPlot saved to {hist_path}")
+    print(f"Plot saved to {hist_path}")
 
 
 if __name__ == "__main__":
