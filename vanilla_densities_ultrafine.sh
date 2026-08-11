@@ -23,4 +23,4 @@ source /home/kenzhayd/projects/def-vhenault/kenzhayd/cbhbd_env/bin/activate
 cd /home/kenzhayd/projects/def-vhenault/kenzhayd/cBHBd_IMBH_analysis
 
 # Run the single model script, passing the SLURM Array Task ID
-python single_model.py --task_id $SLURM_ARRAY_TASK_ID --jobs_file vanilla_densities_ultrafine.csv --output_dir output/vanilla_densities_ultrafine.csv
+python single_model.py --task_id $SLURM_ARRAY_TASK_ID --jobs_file vanilla_densities_ultrafine --output_dir output/vanilla_densities_ultrafine.csv

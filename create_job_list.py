@@ -19,7 +19,7 @@ from pathlib import Path
 
 # CONFIGURATION
 
-job_list_name = "concentrations.csv"
+job_list_name = "densities_ultrafine"
 
 # SLURM settings 
 SLURM_ACCOUNT  = "def-vhenault"
@@ -30,7 +30,7 @@ MAX_CONCURRENT = None    # the %N in --array=1-N%M
 
 # Model ICs
 M0 = [1e7]
-LOG_RHO = [5.62,6.62]  # 5.62 in Nolan's paper
+LOG_RHO = [5.62,6.62,7.12,7.62,8.12]  # 5.62 in Nolan's paper
 RHO = [10 ** x for x in LOG_RHO]
 Z_FEH = [-1.7]
 RG = [26.25]
@@ -43,7 +43,7 @@ RANTALA_IMBH_SEED = [True]      # Toggle Rantala 2026 IMBH seed formation
 CHATTOPADHYAY_SEED  = [False]   # Toggle Extended IMF
 GALPY_POTENTIAL = [True]        # Toggle Galpy NFW Halo Potential
 M_VIR = [1e9]                   # Virial mass used if galpy potential is enabled. 1e9 is default.
-C_HALO = [5,7,9,12,17]                    # NFW Concentration parameter used if galpy potential is enabled. 7 is default. 
+C_HALO = [7]                    # NFW Concentration parameter used if galpy potential is enabled. 7 is default. 
 
 # Generate of runs grid
 GRID = list(itertools.product(
@@ -54,7 +54,7 @@ GRID = list(itertools.product(
 N_TASKS = len(GRID)
 
 # Write to jobs.csv
-with open(job_list_name, 'w', newline='') as f:
+with open(job_list_name+".csv", 'w', newline='') as f:
     writer = csv.writer(f)
     writer.writerow([
         'task_id', 'M0', 'rhoh0', 'FeH', 'rg', 'tend', 'seed',
