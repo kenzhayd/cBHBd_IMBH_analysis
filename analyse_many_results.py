@@ -235,7 +235,7 @@ def main():
                  color=COLOURS[(i + 1) % len(COLOURS)], linewidth=2.5)
 
     plt.axvline(x=500, color=COLOURS[0], linestyle=':', linewidth=2, label='500 $M_{\odot}$')
-    plt.xscale('linear')
+    plt.xscale('log')
     plt.xlabel(r'M ($M_{\odot}$)', fontsize=14)
     plt.ylabel(r'$p(M_{\mathrm{IMBH}} > M)$', fontsize=14)
     plt.xlim(x_min, x_max)
