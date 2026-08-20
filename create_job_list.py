@@ -46,7 +46,7 @@ M_VIR = [1e9]                   # Virial mass used if galpy potential is enabled
 C_HALO = [7]                    # NFW Concentration parameter used if galpy potential is enabled. 7 is default. 
 
 CLUMPS_SEED = [True]            # Toggle clumps for IMBH seeding
-N_CLUMPS = [10]                 # Number of clumps 
+N_CLUMPS = [15]                 # Number of clumps 
 
 # Generate of runs grid
 GRID = list(itertools.product(
