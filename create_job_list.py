@@ -19,7 +19,7 @@ from pathlib import Path
 
 # CONFIGURATION
 
-job_list_name = "clump_densitities"
+job_list_name = "noSeed_densitities"
 
 # SLURM settings 
 SLURM_ACCOUNT  = "def-vhenault"
@@ -39,13 +39,13 @@ TEND = [3000]
 # Ex, set this to range(1, 101) to run 100 seeds per configuration
 SEEDS = range(1, 101) 
 
-RANTALA_IMBH_SEED = [True]      # Toggle Rantala 2026 IMBH seed formation
+RANTALA_IMBH_SEED = [False]      # Toggle Rantala 2026 IMBH seed formation
 CHATTOPADHYAY_SEED  = [False]   # Toggle Extended IMF
 GALPY_POTENTIAL = [True]        # Toggle Galpy NFW Halo Potential
 M_VIR = [1e9]                   # Virial mass used if galpy potential is enabled. 1e9 is default.
 C_HALO = [7]                    # NFW Concentration parameter used if galpy potential is enabled. 7 is default. 
 
-CLUMPS_SEED = [True]            # Toggle clumps for IMBH seeding
+CLUMPS_SEED = [False]            # Toggle clumps for IMBH seeding
 N_CLUMPS = [15]                 # Number of clumps 
 
 # Generate of runs grid
