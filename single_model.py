@@ -163,6 +163,7 @@ def main():
         "c_halo": float(c_halo),
         "clumps_seed": bool(clumps_seed),
         "n_clumps": int(n_clumps),
+        "imbh_seed_masses": list(model.imbh_mass), 
         "mIMBH_final": float(model.mIMBH),
         "chiIMBH_final": float(model.chiIMBH),
         "genIMBH_final": float(model.genIMBH),

@@ -19,7 +19,7 @@ from pathlib import Path
 
 # CONFIGURATION
 
-job_list_name = "test"
+job_list_name = "clump_densitities"
 
 # SLURM settings 
 SLURM_ACCOUNT  = "def-vhenault"
@@ -30,14 +30,14 @@ MAX_CONCURRENT = None    # the %N in --array=1-N%M
 
 # Model ICs
 M0 = [1e7]
-LOG_RHO = [5.62]  # 5.62 in Nolan's paper
+LOG_RHO = [5.62,6.62,7.62]  # 5.62 in Nolan's paper
 RHO = [10 ** x for x in LOG_RHO]
 Z_FEH = [-1.7]
 RG = [26.25]
 TEND = [3000]
 
 # Ex, set this to range(1, 101) to run 100 seeds per configuration
-SEEDS = range(1, 4) 
+SEEDS = range(1, 101) 
 
 RANTALA_IMBH_SEED = [True]      # Toggle Rantala 2026 IMBH seed formation
 CHATTOPADHYAY_SEED  = [False]   # Toggle Extended IMF
