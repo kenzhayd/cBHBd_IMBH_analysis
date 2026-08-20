@@ -27,7 +27,7 @@ COLOURS = ["#000000", "#E69F00", "#56B4E8", "#009E73",
 CONFIG_KEYS = [
     'M0', 'rhoh0', 'FeH', 'rg', 'tend',
     'M_vir', 'c_halo',
-    'rantala_imbh_seed', 'chattopadhyay_seed', 'galpy_potential',
+    'rantala_imbh_seed', 'chattopadhyay_seed', 'galpy_potential', 'clumps_seed', 'n_clumps'
 ]
 
 PARAM_LABEL = {
@@ -41,6 +41,8 @@ PARAM_LABEL = {
     'rantala_imbh_seed':  lambda v: "RantalaSeed" if v else "StdSeed",
     'chattopadhyay_seed': lambda v: "ChattSeed" if v else "StdSeed",
     'galpy_potential':    lambda v: "GalpyPot" if v else "StdPot",
+    'use_clumps':         lambda v: "Clumps" if v else "NoClumps", 
+    'n_clumps':           lambda v: f"Nclumps_{v}",                
 }
 
 def _sci(v, prec=2):
@@ -59,6 +61,9 @@ PARAM_LABEL_TEX = {
     'rantala_imbh_seed':  lambda v: "Rantala seed" if v else "Std seed",
     'chattopadhyay_seed': lambda v: "Chattopadhyay seed" if v else "Std IMF",
     'galpy_potential':    lambda v: "Galpy potential" if v else "Std potential",
+    'use_clumps':         lambda v: "Clump Seeds" if v else "Std Seeds", 
+    'n_clumps':           lambda v: rf"$N_{{clumps}} = {v}$",            
+
 }
 
 def get_config_name(config_dict):

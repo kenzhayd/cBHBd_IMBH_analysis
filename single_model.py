@@ -29,6 +29,7 @@ def get_config_name(config_dict):
     seed_str = "RantalaSeed" if config_dict["rantala_imbh_seed"] else "StdSeed"
     imf_str = "ExtIMF" if config_dict["chattopadhyay_seed"] else "StdIMF"
     pot_str = "GalpyPot" if config_dict["galpy_potential"] else "StdPot"
+    clump_str = f"Clumps{config_dict['n_clumps']}" if config_dict["clumps_seed"] else "NoClumps"
 
     parts = [
         f"M0_{config_dict['M0']:.0e}",
@@ -41,6 +42,7 @@ def get_config_name(config_dict):
         seed_str,
         imf_str,
         pot_str,
+        clump_str
     ]
 
     return "_".join(parts)
@@ -92,7 +94,20 @@ def main():
     
     M_vir = float(job['M_vir'])
     c_halo = float(job['c_halo'])
+    clumps_seed = job['clumps_seed'] == 'True'
+    n_clumps = int(job['n_clumps'])
     
+    # If using clumps, disable other seed methods
+    if clumps_seed:
+        rantala_imbh_seed = False
+        chattopadhyay_seed = False
+        imbh_mass_list = cbhbd.CBHBD.generate_clump_seeds(
+            M_total=M0, rhoh0=rhoh0, FeH=FeH, n_clumps=n_clumps, seed=seed
+        )
+    else:
+        imbh_mass_list = None
+        
+        
     config_dict = {
             "M0": M0,
             "rhoh0": rhoh0,
@@ -104,6 +119,8 @@ def main():
             "galpy_potential": galpy_potential,
             "M_vir": M_vir,
             "c_halo": c_halo,
+            "clumps_seed": clumps_seed,
+            "n_clumps": n_clumps
         }
     
     config_name = get_config_name(config_dict)
@@ -115,12 +132,14 @@ def main():
         seed=seed, 
         rantala_imbh_seed=rantala_imbh_seed,
         chattopadhyay_seed=chattopadhyay_seed,
+        imbh_mass=imbh_mass_list,
         verbose=False,
         a_slopes=[-0.3, -1.65, -2.3], 
         m_breaks=[0.08, 0.4, 1, 250],    # Extended IMF with upper limit 250 Msun
         galpy_potential=galpy_potential,
         M_vir=M_vir,
         conc=c_halo,
+        W0=7 # Central potential
     )
 
     tend_in_years = tend * 1e6
@@ -142,6 +161,8 @@ def main():
         "galpy_potential": bool(galpy_potential),
         "M_vir": float(M_vir),
         "c_halo": float(c_halo),
+        "clumps_seed": bool(clumps_seed),
+        "n_clumps": int(n_clumps),
         "mIMBH_final": float(model.mIMBH),
         "chiIMBH_final": float(model.chiIMBH),
         "genIMBH_final": float(model.genIMBH),
